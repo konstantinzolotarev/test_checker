@@ -3,7 +3,6 @@ defmodule CheckTest.Client do
   use HTTPoison.Base
 
   defmodule Winner do
-
     @moduledoc """
     Structure for tournament results input in winners field
     """
@@ -18,10 +17,18 @@ defmodule CheckTest.Client do
   end
 
   @doc false
+  def process_response_body(body) do
+    case Poison.decode(body) do
+      {:ok, parsed} -> parsed
+      {:error, _} -> body
+    end
+  end
+
+  @doc false
   def process_request_body(body) when is_binary(body), do: body
 
   @doc false
-  def process_request_body(body) do 
+  def process_request_body(body) do
     Poison.encode!(body)
   end
 
@@ -30,7 +37,7 @@ defmodule CheckTest.Client do
   """
   @spec take(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
   def take(player, points) do
-    
+
     get("/take?playerId=#{player}&points=#{points}")
   end
 
