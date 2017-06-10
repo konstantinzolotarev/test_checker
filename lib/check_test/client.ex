@@ -21,6 +21,7 @@ defmodule CheckTest.Client do
     case Poison.decode(body) do
       {:ok, parsed} -> parsed
       {:error, _} -> body
+      {:error, _, _} -> body
     end
   end
 
