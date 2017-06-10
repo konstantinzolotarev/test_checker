@@ -1,15 +1,7 @@
 defmodule CheckTest.Case.Simple do
   use GenServer
 
-  alias CheckTest.Client
-
-  defmodule TestState do
-
-    defstruct players: [],
-              players_created: [],
-              tournament: :rand.uniform(100),
-              deposit: 1000
-  end
+  alias CheckTest.{Client, TestState}
 
   def start_link(state \\ %TestState{}) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
