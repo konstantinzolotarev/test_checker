@@ -13,6 +13,7 @@ defmodule CheckTest.Client do
 
   @doc false
   def process_url(url) do
+    IO.inspect Application.get_env(:check_test, :url, "http://localhost:4000/") <> url
     Application.get_env(:check_test, :url, "http://localhost:4000/") <> url
   end
 
@@ -79,9 +80,9 @@ defmodule CheckTest.Client do
   def balance(player) do
 
     case get("/balance?playerId=#{player}") do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        IO.inspect "Player #{player} balance: #{inspect body}"
-        {:ok, %{player: player, body: body}}
+      {:ok, %HTTPoison.Response{status_code: 200, body: %{"balance" => balance}}} ->
+        IO.inspect "Player #{player} balance: #{balance}"
+        {:ok, %{player: player, balance: balance}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         IO.inspect "Player #{player} balance fetch failed: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
@@ -99,6 +100,9 @@ defmodule CheckTest.Client do
 
     case get("/announceTournament?tournamentId=#{id}&deposit=#{deposit}") do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
+        IO.inspect "Tournament #{id} created with deposit #{deposit}"
+        {:ok, %{id: id, deposit: deposit}}
+      {:ok, %HTTPoison.Response{status_code: 201}} ->
         IO.inspect "Tournament #{id} created with deposit #{deposit}"
         {:ok, %{id: id, deposit: deposit}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
