@@ -39,7 +39,17 @@ defmodule CheckTest.Client do
   @spec take(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
   def take(player, points) do
 
-    get("/take?playerId=#{player}&points=#{points}")
+    case get("/take?playerId=#{player}&points=#{points}") do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        IO.inspect "Player #{player} take points #{points}"
+        {:ok, %{player: player, points: points}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Player #{player} take points failed: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Player #{player} take points failed: #{inspect err}"
+        {:error, err}
+    end
   end
 
   @doc """
@@ -68,7 +78,17 @@ defmodule CheckTest.Client do
   @spec balance(String.t) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
   def balance(player) do
 
-    get("/balance?playerId=#{player}")
+    case get("/balance?playerId=#{player}") do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        IO.inspect "Player #{player} balance: #{inspect body}"
+        {:ok, %{player: player, body: body}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Player #{player} balance fetch failed: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Player #{player} balance fetch failed: #{inspect err}"
+        {:error, err}
+    end
   end
 
   @doc """
@@ -114,7 +134,17 @@ defmodule CheckTest.Client do
   def tournament_results(id, winners) do
 
     payload = Poison.encode!(%{tournamentId: id, winners: winners})
-    post("/resultTournament", payload, [{"Content-Type", "application/json"}])
+    case post("/resultTournament", payload, [{"Content-Type", "application/json"}]) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        IO.inspect "Tournament #{id} results success: #{inspect body}"
+        {:ok, %{tournament: id, body: body}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Tournament #{id} posting results failed: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Tournament #{id} posting results failed: #{inspect err}"
+        {:error, err}
+    end
   end
 
 end
