@@ -14,7 +14,7 @@ defmodule CheckTest.Case.Simple do
   @doc """
   Generate new 7 players with random points from 1000 - 10000
   """
-  def generate_players() do
+  defp generate_players() do
     1..8
     |> Enum.map(&(%{player: "P#{&1}", points: :rand.uniform(10) * 1000}))
   end

@@ -1,7 +1,7 @@
-defmodule TestState do
+defmodule CheckTest.TestState do
 
   defstruct players: [],
             players_created: [],
-            tournament: :rand.uniform(100),
+            tournament: nil,
             deposit: 1000
 end

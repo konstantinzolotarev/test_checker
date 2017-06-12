@@ -49,7 +49,17 @@ defmodule CheckTest.Client do
   @spec fund(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
   def fund(player, points) do
 
-    get("/fund?playerId=#{player}&points=#{points}")
+    case get("/fund?playerId=#{player}&points=#{points}") do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        IO.inspect "Player #{player} created with points #{points}"
+        {:ok, %{player: player, points: points}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Player #{player} was not created: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Player #{player} was not created: #{inspect err}"
+        {:error, err}
+    end
   end
 
   @doc """
@@ -67,7 +77,17 @@ defmodule CheckTest.Client do
   @spec announce_tournament(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
   def announce_tournament(id, deposit) do
 
-    get("/announceTournament?tournamentId=#{id}&deposit=#{deposit}")
+    case get("/announceTournament?tournamentId=#{id}&deposit=#{deposit}") do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        IO.inspect "Tournament #{id} created with deposit #{deposit}"
+        {:ok, %{id: id, deposit: deposit}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Tournament #{id} was not created: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Tournament #{id} was not created: #{inspect err}"
+        {:error, err}
+    end
   end
 
   @spec join_tournament(String.t, String.t, [String.t]) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
@@ -76,7 +96,18 @@ defmodule CheckTest.Client do
     query = backers
             |> Enum.map(&("bakerId=#{&1}"))
             |> Enum.join("&")
-    get("/joinTournament?tournamentId=#{id}&playerId=#{player}&#{query}")
+
+    case get("/joinTournament?tournamentId=#{id}&playerId=#{player}&#{query}") do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        IO.inspect "Player #{player} Joined tournament #{id} with bakers #{inspect backers}"
+        {:ok, %{player: player, backers: backers, tournament: id}}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        IO.inspect "Player #{player} failed to join: #{status_code} - #{inspect body}"
+        {:error, %{status_code: status_code, body: body}}
+      {:error, err} ->
+        IO.inspect "Player #{player} failed to join: #{inspect err}"
+        {:error, err}
+    end
   end
 
   @spec tournament_results(String.t, [%Winner{}]) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
