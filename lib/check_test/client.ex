@@ -64,6 +64,9 @@ defmodule CheckTest.Client do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         IO.inspect "Player #{player} created with points #{points}"
         {:ok, %{player: player, points: points}}
+      {:ok, %HTTPoison.Response{status_code: 201}} ->
+        IO.inspect "Player #{player} created with points #{points}"
+        {:ok, %{player: player, points: points}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         IO.inspect "Player #{player} was not created: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
