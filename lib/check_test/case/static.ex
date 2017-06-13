@@ -36,6 +36,7 @@ defmodule CheckTest.Case.Static do
     {:reply, state, state}
   end
 
+  @doc false
   def handle_call(:join_players, _from, state) do
     with {:ok, _} <- join(state.tournament, "P5"),
          {:ok, _} <- join(state.tournament, "P1", ["P2", "P3", "P4"]),
@@ -44,6 +45,9 @@ defmodule CheckTest.Case.Static do
      {:reply, state, state}
   end
 
+  @doc """
+  Announce new tournament
+  """
   defp announce_tournament(players) when length(players) == 5 do
     GenServer.call(__MODULE__, :announce_tournament)
   end
