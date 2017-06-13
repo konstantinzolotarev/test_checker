@@ -121,7 +121,7 @@ defmodule CheckTest.Client do
   def join_tournament(id, player, backers \\ []) do
 
     query = backers
-            |> Enum.map(&("bakerId=#{&1}"))
+            |> Enum.map(&("backerId=#{&1}"))
             |> Enum.join("&")
 
     case get("/joinTournament?tournamentId=#{id}&playerId=#{player}&#{query}") do
