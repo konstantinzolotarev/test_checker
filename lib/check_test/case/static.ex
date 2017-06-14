@@ -17,6 +17,7 @@ defmodule CheckTest.Case.Static do
     create_players
     |> announce_tournament
     |> fill_tournament
+    |> results_tournament
   end
 
   @doc false
@@ -45,6 +46,13 @@ defmodule CheckTest.Case.Static do
      {:reply, state, state}
   end
 
+  @doc false
+  def handle_call(:result, _from, %TestState{tournament: id} = state) do
+    winner = %Client.Winner{playerId: "P1", prize: 500}
+    {:ok, data} = Client.tournament_results(id, [winner])
+    {:reply, state, state}
+  end
+
   @doc """
   Announce new tournament
   """
@@ -64,6 +72,13 @@ defmodule CheckTest.Case.Static do
   """
   defp fill_tournament(%TestState{tournament: id} = state) when id != nil do
     GenServer.call(__MODULE__, :join_players)
+  end
+
+  @doc """
+  Send an tournament results
+  """
+  defp results_tournament(%TestState{tournament: id} = state) when id != nil do
+    GenServer.call(__MODULE__, :result)
   end
 
   @doc """
