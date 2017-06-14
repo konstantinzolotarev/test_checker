@@ -39,9 +39,8 @@ defmodule CheckTest.Case.Static do
 
   @doc false
   def handle_call(:join_players, _from, state) do
-    with {:ok, _} <- join(state.tournament, "P5"),
-         {:ok, _} <- join(state.tournament, "P1", ["P2", "P3", "P4"]),
-         do: IO.inspect "Players joined tournament"
+     {:ok, _} = join(state.tournament, "P5")
+     {:ok, _} = join(state.tournament, "P1", ["P2", "P3", "P4"])
 
      {:reply, state, state}
   end
