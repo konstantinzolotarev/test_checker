@@ -20,6 +20,14 @@ defmodule CheckTest.Case.Static do
     |> results_tournament
   end
 
+  def test_fund(player, points \\ 500) do
+    {:ok, %{balance: balance_before}} = Client.balance(player)
+    {:ok, _} = Client.fund(player, points)
+    {:ok, %{balance: balance_after}} = Client.balance(player)
+
+    {balance_before, balance_after}
+  end
+
   @doc false
   def handle_call(:create_players, _from, %TestState{players: players} = state) do
     result = players
@@ -56,6 +64,7 @@ defmodule CheckTest.Case.Static do
   Announce new tournament
   """
   defp announce_tournament(players) when length(players) == 5 do
+    Process.sleep(1000)
     GenServer.call(__MODULE__, :announce_tournament)
   end
 
@@ -63,6 +72,7 @@ defmodule CheckTest.Case.Static do
   Run async method to create each random players form state
   """
   defp create_players do
+    Process.sleep(1000)
     GenServer.call(__MODULE__, :create_players)
   end
 
@@ -70,6 +80,7 @@ defmodule CheckTest.Case.Static do
   fill tournament with players
   """
   defp fill_tournament(%TestState{tournament: id} = state) when id != nil do
+    Process.sleep(1000)
     GenServer.call(__MODULE__, :join_players)
   end
 
@@ -77,6 +88,7 @@ defmodule CheckTest.Case.Static do
   Send an tournament results
   """
   defp results_tournament(%TestState{tournament: id} = state) when id != nil do
+    Process.sleep(1000)
     GenServer.call(__MODULE__, :result)
   end
 
