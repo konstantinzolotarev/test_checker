@@ -64,7 +64,7 @@ defmodule CheckTest.Case.Static do
   Announce new tournament
   """
   defp announce_tournament(players) when length(players) == 5 do
-    Process.sleep(1000)
+    # Process.sleep(1000)
     GenServer.call(__MODULE__, :announce_tournament)
   end
 
@@ -72,7 +72,7 @@ defmodule CheckTest.Case.Static do
   Run async method to create each random players form state
   """
   defp create_players do
-    Process.sleep(1000)
+    # Process.sleep(1000)
     GenServer.call(__MODULE__, :create_players)
   end
 
@@ -80,7 +80,7 @@ defmodule CheckTest.Case.Static do
   fill tournament with players
   """
   defp fill_tournament(%TestState{tournament: id} = state) when id != nil do
-    Process.sleep(1000)
+    # Process.sleep(1000)
     GenServer.call(__MODULE__, :join_players)
   end
 
@@ -88,7 +88,7 @@ defmodule CheckTest.Case.Static do
   Send an tournament results
   """
   defp results_tournament(%TestState{tournament: id} = state) when id != nil do
-    Process.sleep(1000)
+    # Process.sleep(1000)
     GenServer.call(__MODULE__, :result)
   end
 
