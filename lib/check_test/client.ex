@@ -30,14 +30,12 @@ defmodule CheckTest.Client do
   def process_request_body(body) when is_binary(body), do: body
 
   @doc false
-  def process_request_body(body) do
-    Poison.encode!(body)
-  end
+  def process_request_body(body), do: Poison.encode!(body)
 
   @doc """
   Take points form player
   """
-  @spec take(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec take(String.t, number) :: {:ok, %{player: String.t, points: number}} | {:error, any}
   def take(player, points) do
 
     case get("/take?playerId=#{player}&points=#{points}") do
@@ -57,7 +55,7 @@ defmodule CheckTest.Client do
   Fund player with amount of points.
   In no player exist in DB this method should create a new player
   """
-  @spec fund(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec fund(String.t, number) :: {:ok, %{player: String.t, points: number}} | {:error, any}
   def fund(player, points) do
 
     case get("/fund?playerId=#{player}&points=#{points}") do
@@ -79,7 +77,7 @@ defmodule CheckTest.Client do
   @doc """
   Get player current balance. If no player exist error have to be returned
   """
-  @spec balance(String.t) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec balance(String.t) :: {:ok, %{player: String.t, balance: number}} | {:error, any}
   def balance(player) do
 
     case get("/balance?playerId=#{player}") do
@@ -98,7 +96,7 @@ defmodule CheckTest.Client do
   @doc """
   Create a new tournament in system with default deposit
   """
-  @spec announce_tournament(String.t, number) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec announce_tournament(String.t, number) :: {:ok, %{id: String.t, deposit: number}} | {:error, any}
   def announce_tournament(id, deposit) do
 
     case get("/announceTournament?tournamentId=#{id}&deposit=#{deposit}") do
@@ -117,7 +115,7 @@ defmodule CheckTest.Client do
     end
   end
 
-  @spec join_tournament(String.t, String.t, [String.t]) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec join_tournament(String.t, String.t, [String.t]) :: {:ok, map} | {:error, any}
   def join_tournament(id, player, backers \\ []) do
 
     query = backers
@@ -137,7 +135,7 @@ defmodule CheckTest.Client do
     end
   end
 
-  @spec tournament_results(String.t, [%Winner{}]) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Error{}}
+  @spec tournament_results(String.t, [%Winner{}]) :: {:ok, %{tournament: String.t, body: map}} | {:error, any}
   def tournament_results(id, winners) do
 
     payload = Poison.encode!(%{tournamentId: id, winners: winners})
