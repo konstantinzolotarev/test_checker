@@ -122,7 +122,7 @@ defmodule CheckTest.Case.Static do
 
   @doc false
   defp player_balance(player) do
-    {:ok, {balance: balance}} = Client.balance(player)
+    {:ok, %{balance: balance}} = Client.balance(player)
     IO.inspect "Player #{player} has balance: #{balance}"
     balance
   end
