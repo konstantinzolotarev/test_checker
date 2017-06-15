@@ -18,6 +18,7 @@ defmodule CheckTest.Case.Static do
     |> announce_tournament
     |> fill_tournament
     |> results_tournament
+    |> players_balance
   end
 
   def test_fund(player, points \\ 500) do
@@ -60,6 +61,14 @@ defmodule CheckTest.Case.Static do
     {:reply, state, state}
   end
 
+  def handle_call(:players_balance, _from, %TestState{players: players} = state) do
+    players
+    |> Stream.map(&Task.async(fn -> player_balance(&1) end))
+    |> Enum.map(&Task.await(&1))
+    |> Enum.filter(fn(v) -> v != nil end)
+    {:reply, state, state}
+  end
+
   @doc """
   Announce new tournament
   """
@@ -92,6 +101,10 @@ defmodule CheckTest.Case.Static do
     GenServer.call(__MODULE__, :result)
   end
 
+  defp players_balance(state) do
+    GenServer.call(__MODULE__, :players_balance)
+  end
+
   @doc """
   Join player into tournament
   """
@@ -105,6 +118,13 @@ defmodule CheckTest.Case.Static do
   defp create_player(%{player: id, points: points}) do
     {:ok, data} = Client.fund(id, points)
     data
+  end
+
+  @doc false
+  defp player_balance(player) do
+    {:ok, {balance: balance}} = Client.balance(player)
+    IO.inspect "Player #{player} has balance: #{balance}"
+    balance
   end
 
   defp generate_players() do
