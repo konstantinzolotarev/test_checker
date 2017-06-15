@@ -3,10 +3,13 @@ defmodule CheckTest.Case.Static do
   alias CheckTest.{Client, TestState}
 
   def start_link(state \\ %TestState{}) do
-    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+    {:ok, pid} = GenServer.start_link(__MODULE__, state, name: __MODULE__)
+    IO.inspect self()
+    {:ok, pid}
   end
 
   def init(state) do
+    IO.inspect self()
     {:ok, %TestState{state | players: generate_players()}}
   end
 
@@ -27,6 +30,18 @@ defmodule CheckTest.Case.Static do
     {:ok, %{balance: balance_after}} = Client.balance(player)
 
     {balance_before, balance_after}
+  end
+
+  def test_load_sync(pid \\ self()) do
+    1..10000
+    |> Enum.map(&(%{player: "P1", points: 100, dummy: &1}))
+    |> Stream.map(&Task.async(fn -> create_player(&1, pid) end))
+    |> Enum.map(&Task.await(&1))
+    |> Enum.filter(fn(v) -> v != nil end)
+  end
+
+  def test_async(pid \\ self()) do
+    create_player(%{player: "P1", points: 100}, pid)
   end
 
   @doc false
@@ -67,6 +82,11 @@ defmodule CheckTest.Case.Static do
     |> Enum.map(&Task.await(&1))
     |> Enum.filter(fn(v) -> v != nil end)
     {:reply, state, state}
+  end
+
+  def handle_info(msg, state) do
+    IO.inspect msg
+    {:noreply, state}
   end
 
   @doc """
@@ -115,15 +135,20 @@ defmodule CheckTest.Case.Static do
   @doc """
   Create a new player in system
   """
-  defp create_player(%{player: id, points: points}) do
-    {:ok, data} = Client.fund(id, points)
+  defp create_player(%{player: id, points: points}, pid \\ nil) do
+    opts = case pid do
+      nil -> []
+      pid -> [stream_to: pid]
+      _ -> []
+    end
+    {:ok, data} = Client.fund(id, points, opts)
     data
   end
 
   @doc false
-  defp player_balance(player) do
-    {:ok, %{balance: balance}} = Client.balance(player)
-    IO.inspect "Player #{player} has balance: #{balance}"
+  defp player_balance(%{player: id} = player) do
+    {:ok, %{balance: balance}} = Client.balance(id)
+    IO.inspect "Player #{id} has balance: #{balance}"
     balance
   end
 

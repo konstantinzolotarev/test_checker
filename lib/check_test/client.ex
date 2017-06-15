@@ -56,11 +56,14 @@ defmodule CheckTest.Client do
   In no player exist in DB this method should create a new player
   """
   @spec fund(String.t, number) :: {:ok, %{player: String.t, points: number}} | {:error, any}
-  def fund(player, points) do
+  def fund(player, points, options \\ []) do
 
-    case get("/fund?playerId=#{player}&points=#{points}") do
+    case get("/fund?playerId=#{player}&points=#{points}", %{}, options) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         IO.inspect "Player #{player} created with points #{points}"
+        {:ok, %{player: player, points: points}}
+      {:ok, %HTTPoison.AsyncResponse{}} ->
+        IO.inspect "Async Player #{player} sent with points #{points}"
         {:ok, %{player: player, points: points}}
       {:ok, %HTTPoison.Response{status_code: 201}} ->
         IO.inspect "Player #{player} created with points #{points}"
