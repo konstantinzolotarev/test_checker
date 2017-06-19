@@ -31,6 +31,9 @@ defmodule CheckTest.Case.Static do
   end
 
   def test_load_sync(pid \\ self()) do
+    # for _ <- 1..10000 do
+    #
+    # end
     1..10000
     |> Enum.map(&(%{player: "P1", points: 100, dummy: &1}))
     |> Stream.map(&Task.async(fn -> create_player(&1, pid) end))
