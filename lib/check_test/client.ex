@@ -40,7 +40,7 @@ defmodule CheckTest.Client do
 
     case get("/take?playerId=#{player}&points=#{points}", %{}, options) do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
-        {:ok, %{id: id}}
+        {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         IO.inspect "Player #{player} take points #{points}"
         {:ok, %{player: player, points: points}}
@@ -62,7 +62,7 @@ defmodule CheckTest.Client do
 
     case get("/fund?playerId=#{player}&points=#{points}", %{}, options) do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
-        {:ok, %{id: id}}
+        {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         IO.inspect "Player #{player} created with points #{points}"
         {:ok, %{player: player, points: points}}
@@ -86,7 +86,7 @@ defmodule CheckTest.Client do
 
     case get("/balance?playerId=#{player}", %{}, options) do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
-        {:ok, %{id: id}}
+        {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200, body: %{"balance" => balance}}} ->
         IO.inspect "Player #{player} balance: #{balance}"
         {:ok, %{player: player, balance: balance}}
