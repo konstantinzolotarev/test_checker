@@ -14,9 +14,7 @@ defmodule CheckTest.Case.Balance do
 
   defmodule Task do 
     defstruct status: 0,
-              amount: 0,
-              error: "",
-              body: ""
+              amount: 0
   end
 
   def start_link(state \\ %TestState{}) do
@@ -33,8 +31,8 @@ defmodule CheckTest.Case.Balance do
   @doc """
   Run set of iterations fro different fund/take operations
   """
-  def run do
-    for _ <- 1..100, do: shoot()  
+  def run(max \\ 100) do
+    for _ <- 1..max, do: shoot()  
   end
   
   @doc"""
@@ -78,8 +76,7 @@ defmodule CheckTest.Case.Balance do
 
   def handle_info(%HTTPoison.AsyncStatus{code: code, id: id}, state), do: failure(id, code, state)
 
-  def handle_info(msg, state) do
-    IO.inspect msg
+  def handle_info(_msg, state) do
     {:noreply, state}
   end
 
