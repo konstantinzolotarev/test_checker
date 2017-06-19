@@ -35,10 +35,10 @@ defmodule CheckTest.Client do
   @doc """
   Take points form player
   """
-  @spec take(String.t, number) :: {:ok, %{player: String.t, points: number}} | {:error, any}
-  def take(player, points) do
+  @spec take(String.t, number, list) :: {:ok, %{player: String.t, points: number}} | {:error, any}
+  def take(player, points, options \\ []) do
 
-    case get("/take?playerId=#{player}&points=#{points}") do
+    case get("/take?playerId=#{player}&points=#{points}", %{}, options) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         IO.inspect "Player #{player} take points #{points}"
         {:ok, %{player: player, points: points}}
@@ -55,7 +55,7 @@ defmodule CheckTest.Client do
   Fund player with amount of points.
   In no player exist in DB this method should create a new player
   """
-  @spec fund(String.t, number) :: {:ok, %{player: String.t, points: number}} | {:error, any}
+  @spec fund(String.t, number, list) :: {:ok, %{player: String.t, points: number}} | {:error, any}
   def fund(player, points, options \\ []) do
 
     case get("/fund?playerId=#{player}&points=#{points}", %{}, options) do
@@ -80,10 +80,10 @@ defmodule CheckTest.Client do
   @doc """
   Get player current balance. If no player exist error have to be returned
   """
-  @spec balance(String.t) :: {:ok, %{player: String.t, balance: number}} | {:error, any}
-  def balance(player) do
+  @spec balance(String.t, list) :: {:ok, %{player: String.t, balance: number}} | {:error, any}
+  def balance(player, options \\ []) do
 
-    case get("/balance?playerId=#{player}") do
+    case get("/balance?playerId=#{player}", %{}, options) do
       {:ok, %HTTPoison.Response{status_code: 200, body: %{"balance" => balance}}} ->
         IO.inspect "Player #{player} balance: #{balance}"
         {:ok, %{player: player, balance: balance}}

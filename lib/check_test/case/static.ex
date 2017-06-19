@@ -3,9 +3,7 @@ defmodule CheckTest.Case.Static do
   alias CheckTest.{Client, TestState}
 
   def start_link(state \\ %TestState{}) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, state, name: __MODULE__)
-    IO.inspect self()
-    {:ok, pid}
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
   def init(state) do
