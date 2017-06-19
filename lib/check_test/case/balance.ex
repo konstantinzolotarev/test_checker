@@ -1,8 +1,15 @@
 defmodule CheckTest.Case.Balance do
 
   use GenServer
-  alias CheckTest.{Client, TestState}
+  alias CheckTest.{Client}
   
+  defmodule TestState do  
+  
+    defstruct player: "",
+              balance: 0
+
+  end 
+
   def start_link(state \\ %TestState{}) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end

@@ -15,11 +15,11 @@ defmodule CheckTest.Case.Static do
   Will run test
   """
   def run do
-    create_players
-    |> announce_tournament
-    |> fill_tournament
-    |> results_tournament
-    |> players_balance
+    create_players()
+    |> announce_tournament()
+    |> fill_tournament()
+    |> results_tournament()
+    |> players_balance()
   end
 
   def test_fund(player, points \\ 500) do
@@ -73,7 +73,7 @@ defmodule CheckTest.Case.Static do
   @doc false
   def handle_call(:result, _from, %TestState{tournament: id} = state) do
     winner = %Client.Winner{playerId: "P1", prize: 500}
-    {:ok, data} = Client.tournament_results(id, [winner])
+    {:ok, _} = Client.tournament_results(id, [winner])
     {:reply, state, state}
   end
 
@@ -90,64 +90,63 @@ defmodule CheckTest.Case.Static do
     {:noreply, state}
   end
 
-  @doc """
-  Announce new tournament
-  """
+  # """
+  # Announce new tournament
+  # """
   defp announce_tournament(players) when length(players) == 5 do
     # Process.sleep(1000)
     GenServer.call(__MODULE__, :announce_tournament)
   end
 
-  @doc """
-  Run async method to create each random players form state
-  """
+  # """
+  # Run async method to create each random players form state
+  # """
   defp create_players do
     # Process.sleep(1000)
     GenServer.call(__MODULE__, :create_players)
   end
 
-  @doc """
-  fill tournament with players
-  """
-  defp fill_tournament(%TestState{tournament: id} = state) when id != nil do
+  # """
+  # fill tournament with players
+  # """
+  defp fill_tournament(%TestState{tournament: id}) when id != nil do
     # Process.sleep(1000)
     GenServer.call(__MODULE__, :join_players)
   end
 
-  @doc """
-  Send an tournament results
-  """
-  defp results_tournament(%TestState{tournament: id} = state) when id != nil do
+  # """
+  # Send an tournament results
+  # """
+  defp results_tournament(%TestState{tournament: id}) when id != nil do
     # Process.sleep(1000)
     GenServer.call(__MODULE__, :result)
   end
 
-  defp players_balance(state) do
+  defp players_balance(_state) do
     GenServer.call(__MODULE__, :players_balance)
   end
 
-  @doc """
-  Join player into tournament
-  """
+  # """
+  # Join player into tournament
+  # """
   defp join(tournament, player, backers \\ []) do
     Client.join_tournament(tournament, player, backers)
   end
 
-  @doc """
-  Create a new player in system
-  """
+  # """
+  # Create a new player in system
+  # """
   defp create_player(%{player: id, points: points}, pid \\ nil) do
     opts = case pid do
       nil -> []
-      pid -> [stream_to: pid]
+      pid when is_pid(pid) -> [stream_to: pid]
       _ -> []
     end
     {:ok, data} = Client.fund(id, points, opts)
     data
   end
 
-  @doc false
-  defp player_balance(%{player: id} = player) do
+  defp player_balance(%{player: id}) do
     {:ok, %{balance: balance}} = Client.balance(id)
     IO.inspect "Player #{id} has balance: #{balance}"
     balance
