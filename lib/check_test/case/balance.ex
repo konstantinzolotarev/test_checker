@@ -33,6 +33,7 @@ defmodule CheckTest.Case.Balance do
   """
   def run(max \\ 100) do
     for _ <- 1..max, do: spawn(&shoot/0)  
+    "#{max} processes was started"
   end
   
   @doc"""
@@ -52,16 +53,34 @@ defmodule CheckTest.Case.Balance do
     GenServer.call(__MODULE__, :state)
   end
 
+  @doc """
+  Get list of current active tasks
+  """
   def get_active do
     GenServer.call(__MODULE__, :get_active)
   end
 
+  @doc """
+  Get current balance for player
+  """
+  def balance do
+    GenServer.call(__MODULE__, :balance)
+  end
+
+  @doc false
   def handle_call(:get_active, _from, %{tasks: tasks} = state) do
     active = tasks
-             |> Enum.filter(fn {id,  %{status: status}} -> status == 0 end)
+             |> Enum.filter(fn {_id,  %{status: status}} -> status == 0 end)
     {:reply, active, state}
   end
 
+  @doc false
+  def handle_call(:balance, _from, %{player: player} = state) do
+    {:ok, %{balance: balance}} = Client.balance(player)
+    {:reply, balance, state}
+  end
+
+  @doc false
   def handle_call(:state, _from, state) do
     {:reply, state, state}
   end
@@ -80,26 +99,32 @@ defmodule CheckTest.Case.Balance do
     {:reply, state, %TestState{state | tasks: Map.put(tasks, id, %Task{amount: amount * -1}), active_tasks: active_tasks + 1}}
   end
 
+  @doc false
   def handle_info(%HTTPoison.AsyncStatus{code: 200, id: id}, state), do: success(id, 200, state)
   
+  @doc false
   def handle_info(%HTTPoison.AsyncStatus{code: 201, id: id}, state), do: success(id, 201, state)
 
+  @doc false
   def handle_info(%HTTPoison.AsyncStatus{code: code, id: id}, state), do: failure(id, code, state)
 
+  @doc false
   def handle_info(%HTTPoison.AsyncEnd{}, %TestState{active_tasks: active_tasks} = state) do
     if active_tasks == 1, do: send_finish()
     {:noreply, %TestState{state | active_tasks: active_tasks - 1}}
   end
 
-  def handle_info(:finsihed, %{balance: balance, player: player} = state) do
+  @doc false
+  def handle_info(:finsihed, %{balance: balance} = state) do
     IO.inspect "Finished all tesks"
     IO.inspect "Result: #{balance}"
 
-    {:ok, %{balance: received}} = Client.balance(player)
+    received = balance()
     IO.inspect "Balance from app: #{received}"
     {:noreply, state}
   end 
 
+  @doc false
   def handle_info(_msg, state) do
     {:noreply, state}
   end
