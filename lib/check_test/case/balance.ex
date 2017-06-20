@@ -32,7 +32,7 @@ defmodule CheckTest.Case.Balance do
   Run set of iterations fro different fund/take operations
   """
   def run(max \\ 100) do
-    for _ <- 1..max, do: shoot()  
+    for _ <- 1..max, do: spawn(&shoot/0)  
   end
   
   @doc"""
@@ -50,6 +50,16 @@ defmodule CheckTest.Case.Balance do
   """
   def state do
     GenServer.call(__MODULE__, :state)
+  end
+
+  def get_active do
+    GenServer.call(__MODULE__, :get_active)
+  end
+
+  def handle_call(:get_active, _from, %{tasks: tasks} = state) do
+    active = tasks
+             |> Enum.filter(fn {id,  %{status: status}} -> status == 0 end)
+    {:reply, active, state}
   end
 
   def handle_call(:state, _from, state) do
