@@ -13,7 +13,6 @@ defmodule CheckTest.Client do
 
   @doc false
   def process_url(url) do
-    IO.inspect Application.get_env(:check_test, :url, "http://localhost:4000/") <> url
     Application.get_env(:check_test, :url, "http://localhost:4000/") <> url
   end
 
@@ -42,13 +41,10 @@ defmodule CheckTest.Client do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
         {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200}} ->
-        IO.inspect "Player #{player} take points #{points}"
         {:ok, %{player: player, points: points}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Player #{player} take points failed: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Player #{player} take points failed: #{inspect err}"
         {:error, err}
     end
   end
@@ -64,16 +60,12 @@ defmodule CheckTest.Client do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
         {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200}} ->
-        IO.inspect "Player #{player} created with points #{points}"
         {:ok, %{player: player, points: points}}
       {:ok, %HTTPoison.Response{status_code: 201}} ->
-        IO.inspect "Player #{player} created with points #{points}"
         {:ok, %{player: player, points: points}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Player #{player} was not created: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Player #{player} was not created: #{inspect err}"
         {:error, err}
     end
   end
@@ -88,13 +80,10 @@ defmodule CheckTest.Client do
       {:ok, %HTTPoison.AsyncResponse{id: id}} ->
         {:ok, id}
       {:ok, %HTTPoison.Response{status_code: 200, body: %{"balance" => balance}}} ->
-        IO.inspect "Player #{player} balance: #{balance}"
         {:ok, %{player: player, balance: balance}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Player #{player} balance fetch failed: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Player #{player} balance fetch failed: #{inspect err}"
         {:error, err}
     end
   end
@@ -107,16 +96,12 @@ defmodule CheckTest.Client do
 
     case get("/announceTournament?tournamentId=#{id}&deposit=#{deposit}") do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
-        IO.inspect "Tournament #{id} created with deposit #{deposit}"
         {:ok, %{id: id, deposit: deposit}}
       {:ok, %HTTPoison.Response{status_code: 201}} ->
-        IO.inspect "Tournament #{id} created with deposit #{deposit}"
         {:ok, %{id: id, deposit: deposit}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Tournament #{id} was not created: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Tournament #{id} was not created: #{inspect err}"
         {:error, err}
     end
   end
@@ -130,13 +115,10 @@ defmodule CheckTest.Client do
 
     case get("/joinTournament?tournamentId=#{id}&playerId=#{player}&#{query}") do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
-        IO.inspect "Player #{player} Joined tournament #{id} with bakers #{inspect backers}"
         {:ok, %{player: player, backers: backers, tournament: id}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Player #{player} failed to join: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Player #{player} failed to join: #{inspect err}"
         {:error, err}
     end
   end
@@ -147,13 +129,10 @@ defmodule CheckTest.Client do
     payload = Poison.encode!(%{tournamentId: id, winners: winners})
     case post("/resultTournament", payload, [{"Content-Type", "application/json"}]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        IO.inspect "Tournament #{id} results success: #{inspect body}"
         {:ok, %{tournament: id, body: body}}
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        IO.inspect "Tournament #{id} posting results failed: #{status_code} - #{inspect body}"
         {:error, %{status_code: status_code, body: body}}
       {:error, err} ->
-        IO.inspect "Tournament #{id} posting results failed: #{inspect err}"
         {:error, err}
     end
   end
