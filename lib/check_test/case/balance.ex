@@ -2,17 +2,17 @@ defmodule CheckTest.Case.Balance do
 
   use GenServer
   alias CheckTest.{Client}
-  
-  defmodule TestState do  
-  
+
+  defmodule TestState do
+
     defstruct player: "P1",
               balance: 0,
               active_tasks: 0,
               tasks: %{}
 
-  end 
+  end
 
-  defmodule Task do 
+  defmodule Task do
     defstruct status: 0,
               amount: 0
   end
@@ -32,15 +32,26 @@ defmodule CheckTest.Case.Balance do
   Run set of iterations fro different fund/take operations
   """
   def run(max \\ 100) do
-    for _ <- 1..max, do: spawn(&shoot/0)  
-    "#{max} processes was started"
+    GenServer.cast(__MODULE__, {:run, max})
+    wait_finish()
   end
-  
+
+  defp wait_finish do
+    :timer.sleep(5000)
+    case length(get_active()) do
+      0 -> :ok
+      num ->
+        IO.puts("#{num} calls still not finsihed")
+        wait_finish()
+      _ -> IO.puts("Something wrong...")
+    end
+  end
+
   @doc"""
   Create a random amount and send a request to fund/take this amount from player
   """
   def shoot do
-    case :rand.uniform(2) do  
+    case :rand.uniform(2) do
       1 -> fund()
       2 -> take()
     end
@@ -65,6 +76,12 @@ defmodule CheckTest.Case.Balance do
   """
   def balance do
     GenServer.call(__MODULE__, :balance)
+  end
+
+  def handle_cast({:run, max}, state) do
+    for _ <- 1..max, do: spawn(&shoot/0)
+    IO.puts("#{max} processes was started")
+    {:noreply, state}
   end
 
   @doc false
@@ -93,7 +110,7 @@ defmodule CheckTest.Case.Balance do
   end
 
   @doc false
-  def handle_call({:take, amount}, _from, %{player: player, tasks: tasks, active_tasks: active_tasks} = state) do  
+  def handle_call({:take, amount}, _from, %{player: player, tasks: tasks, active_tasks: active_tasks} = state) do
     IO.inspect "Take: #{amount}"
     {:ok, id} = Client.take(player, amount, [stream_to: __MODULE__])
     {:reply, state, %TestState{state | tasks: Map.put(tasks, id, %Task{amount: amount * -1}), active_tasks: active_tasks + 1}}
@@ -101,7 +118,7 @@ defmodule CheckTest.Case.Balance do
 
   @doc false
   def handle_info(%HTTPoison.AsyncStatus{code: 200, id: id}, state), do: success(id, 200, state)
-  
+
   @doc false
   def handle_info(%HTTPoison.AsyncStatus{code: 201, id: id}, state), do: success(id, 201, state)
 
@@ -122,7 +139,7 @@ defmodule CheckTest.Case.Balance do
     received = balance()
     IO.inspect "Balance from app: #{received}"
     {:noreply, state}
-  end 
+  end
 
   @doc false
   def handle_info(_msg, state) do
@@ -130,23 +147,23 @@ defmodule CheckTest.Case.Balance do
   end
 
   defp failure(id, code, %{tasks: tasks} = state) do
-    
-    case Map.get(tasks, id) do  
+
+    case Map.get(tasks, id) do
       nil -> {:noreply, state}
-      value -> 
+      value ->
         {:noreply, %TestState{state | tasks: Map.put(tasks, id, %Task{value | status: code})}}
     end
   end
 
   defp success(id, code, %{tasks: tasks, balance: balance} = state) do
-    
-    case Map.get(tasks, id) do  
+
+    case Map.get(tasks, id) do
       nil -> {:noreply, state}
-      value -> 
+      value ->
         {:noreply, %TestState{state | tasks: Map.put(tasks, id, %Task{value | status: code}), balance: balance + value.amount}}
     end
   end
-  
+
   defp send_finish do
     send(__MODULE__, :finsihed)
   end
