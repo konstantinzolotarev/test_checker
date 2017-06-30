@@ -22,29 +22,6 @@ defmodule CheckTest.Case.Static do
     |> players_balance()
   end
 
-  def test_fund(player, points \\ 500) do
-    {:ok, %{balance: balance_before}} = Client.balance(player)
-    {:ok, _} = Client.fund(player, points)
-    {:ok, %{balance: balance_after}} = Client.balance(player)
-
-    {balance_before, balance_after}
-  end
-
-  def test_load_sync(pid \\ self()) do
-    # for _ <- 1..10000 do
-    #
-    # end
-    1..10000
-    |> Enum.map(&(%{player: "P1", points: 100, dummy: &1}))
-    |> Stream.map(&Task.async(fn -> create_player(&1, pid) end))
-    |> Enum.map(&Task.await(&1))
-    |> Enum.filter(fn(v) -> v != nil end)
-  end
-
-  def test_async(pid \\ self()) do
-    create_player(%{player: "P1", points: 100}, pid)
-  end
-
   @doc false
   def handle_call(:create_players, _from, %TestState{players: players} = state) do
     result = players

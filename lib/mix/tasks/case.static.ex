@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Check.Static do
+defmodule Mix.Tasks.Case.Static do
   use Mix.Task
 
   @shortdoc "Runs static tournament test"
