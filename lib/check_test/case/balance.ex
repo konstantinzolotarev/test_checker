@@ -132,11 +132,11 @@ defmodule CheckTest.Case.Balance do
   end
 
   @doc false
-  def handle_info(:finsihed, %{balance: balance} = state) do
-    IO.inspect "Finished all tesks"
+  def handle_info(:finsihed, %{balance: balance, player: player} = state) do
+    IO.inspect "Finished all tasks"
     IO.inspect "Result: #{balance}"
 
-    received = balance()
+    {:ok, %{balance: received}} = Client.balance(player)
     IO.inspect "Balance from app: #{received}"
     {:noreply, state}
   end
