@@ -104,14 +104,14 @@ defmodule CheckTest.Case.Balance do
 
   @doc false
   def handle_call({:fund, amount}, _from, %{player: player, tasks: tasks, active_tasks: active_tasks} = state) do
-    IO.inspect "Fund: #{amount}"
+    # IO.inspect "Fund: #{amount}"
     {:ok, id} = Client.fund(player, amount, [stream_to: __MODULE__])
     {:reply, state, %TestState{state | tasks: Map.put(tasks, id, %Task{amount: amount}), active_tasks: active_tasks + 1}}
   end
 
   @doc false
   def handle_call({:take, amount}, _from, %{player: player, tasks: tasks, active_tasks: active_tasks} = state) do
-    IO.inspect "Take: #{amount}"
+    # IO.inspect "Take: #{amount}"
     {:ok, id} = Client.take(player, amount, [stream_to: __MODULE__])
     {:reply, state, %TestState{state | tasks: Map.put(tasks, id, %Task{amount: amount * -1}), active_tasks: active_tasks + 1}}
   end

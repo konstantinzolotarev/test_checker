@@ -127,6 +127,7 @@ defmodule CheckTest.Client do
   def tournament_results(id, winners) do
 
     payload = Poison.encode!(%{tournamentId: id, winners: winners})
+    IO.inspect payload
     case post("/resultTournament", payload, [{"Content-Type", "application/json"}]) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, %{tournament: id, body: body}}
