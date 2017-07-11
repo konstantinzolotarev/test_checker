@@ -23,7 +23,8 @@ defmodule CheckTest.Case.Balance do
 
   @doc false
   def init(%TestState{player: player} = state) do
-    {:ok, %{balance: balance}} = Client.balance(player)
+    {:ok, %{balance: value}} = Client.balance(player)
+    balance = balance_to_float(value)
     IO.inspect({player, balance})
     {:ok, %TestState{state | balance: balance}}
   end
@@ -93,7 +94,8 @@ defmodule CheckTest.Case.Balance do
 
   @doc false
   def handle_call(:balance, _from, %{player: player} = state) do
-    {:ok, %{balance: balance}} = Client.balance(player)
+    {:ok, %{balance: value}} = Client.balance(player)
+    balance = balance_to_float(value)
     {:reply, balance, state}
   end
 
@@ -174,6 +176,15 @@ defmodule CheckTest.Case.Balance do
 
   defp take do
     GenServer.call(__MODULE__, {:take, random_points()})
+  end
+
+  defp balance_to_float(balance) do
+    case is_binary(balance) do
+      true ->
+        {parsed, _} = Float.parse(balance)
+        parsed
+      _ -> balance
+    end
   end
 
   defp random_points do
